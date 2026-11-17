@@ -2,6 +2,7 @@ import json
 
 import numpy as np
 import tensorflow as tf
+from vegasflow.monte_carlo import wrapper
 from vegasflow import VegasFlow
 from vegasflow.configflow import ALPHA, DTYPE, TECH_CUT
 from vegasflow.vflow import refine_grid_per_dimension
@@ -19,3 +20,20 @@ class VegasFlowUSSHistFill(VegasFlow):
         arr_res2 = tf.math.unsorted_segment_sum(data, segment_ids, self.n_dim * n_bins)
 
         return tf.reshape(arr_res2, (self.n_dim, n_bins))
+
+def vegas_usshistfill_wrapper(integrand, n_dim, n_iter, total_n_events, **kwargs):
+    """Convenience wrapper
+
+    Parameters
+    ----------
+        `integrand`: tf.function
+        `n_dim`: number of dimensions
+        `n_iter`: number of iterations
+        `n_events`: number of events per iteration
+
+    Returns
+    -------
+        `final_result`: integral value
+        `sigma`: monte carlo error
+    """
+    return wrapper(VegasFlowUSSHistFill, integrand, n_dim, n_iter, total_n_events, **kwargs)
